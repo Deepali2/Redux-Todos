@@ -1,14 +1,19 @@
-const initialState = {count: 0};
+const initialState = {
+  todos: [],
+  id: 0
+};
 function rootReducer(state=initialState, action) {
   switch(action.type) {
-    case "INCREMENT":
+    case "ADD_TODO":
+    //add a todo
       var newState = {...state};
-      newState.count++;
-      return newState;
-    case "DECREMENT":
-      var newState = {...state};
-      newState.count--;
-      return newState;
+      newState.id++;      
+      return {
+        ...newState,
+        todos:[...newState.todos, {task: action.task, id: newState.id}]
+      };
+    case "REMOVE_TODO":
+    //remove a todo
     default:
       return state;
   }
@@ -17,20 +22,18 @@ function rootReducer(state=initialState, action) {
 const store = Redux.createStore(rootReducer);
 
 $(document).ready(function() {
-  let currentState = store.getState();
-  $("#counter").text(currentState.count);
-  $("#increment").on("click", function() {
+  $("form").on("submit", function(event) {
+    event.preventDefault() //to make sure that the page does not refresh
+    let newTask = $("#task").val();
     store.dispatch({
-      type: "INCREMENT"
+      type: "ADD_TODO",
+      task: newTask
     });
     let currentState = store.getState();
-    $("#counter").text(currentState.count);
-  })
-  $("#decrement").on("click", function() {
-    store.dispatch({
-      type: "DECREMENT"
+    let $newLi = $("<li>", {
+      text: newTask
     });
-    let currentState = store.getState();
-    $("#counter").text(currentState.count)
-  })
-})
+    $("#todos").append($newLi);
+    $("form").trigger("reset"); //clear any form values
+  });
+});
